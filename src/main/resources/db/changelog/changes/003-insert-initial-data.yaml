@@ -1,0 +1,177 @@
+databaseChangeLog:
+  # Admin Users
+  - changeSet:
+      id: 001-insert-admin-users
+      author: developer
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: name, value: "Admin Principal" }
+              - column: { name: age, value: "35" }
+              - column: { name: monthly_income, value: "8500.00" }
+              - column: { name: credit_score, value: "850" }
+              - column: { name: role, value: "ADMIN" }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: name, value: "Admin Secondary" }
+              - column: { name: age, value: "32" }
+              - column: { name: monthly_income, value: "7500.00" }
+              - column: { name: credit_score, value: "820" }
+              - column: { name: role, value: "ADMIN" }
+
+  # Employee Users
+  - changeSet:
+      id: 002-insert-employees
+      author: developer
+      changes:
+        - sql:
+            sql: |
+              DO $$
+              BEGIN
+                FOR counter IN 1..50 LOOP
+                  INSERT INTO users (name, age, monthly_income, credit_score, role)
+                  VALUES (
+                    'Employee ' || counter,
+                    FLOOR(RANDOM() * (60 - 25 + 1) + 25)::INTEGER,
+                    FLOOR(RANDOM() * (7000 - 4000 + 1) + 4000)::NUMERIC(10,2),
+                    FLOOR(RANDOM() * (820 - 700 + 1) + 700)::INTEGER,
+                    'EMPLOYEE'
+                  );
+                END LOOP;
+              END;
+              $$ LANGUAGE plpgsql;
+            splitStatements: false
+
+  # Regular Users
+  - changeSet:
+      id: 003-insert-regular-users
+      author: developer
+      changes:
+        - sql:
+            sql: |
+              DO $$
+              DECLARE
+                age_val INTEGER;
+                income_val NUMERIC(10,2);
+                credit_score_val INTEGER;
+              BEGIN
+                FOR counter IN 1..1000 LOOP
+                  IF counter <= 250 THEN
+                    age_val := FLOOR(RANDOM() * (25 - 18 + 1) + 18);
+                    income_val := FLOOR(RANDOM() * (4000 - 2000 + 1) + 2000);
+                    credit_score_val := FLOOR(RANDOM() * (700 - 500 + 1) + 500);
+                  ELSIF counter <= 500 THEN
+                    age_val := FLOOR(RANDOM() * (40 - 26 + 1) + 26);
+                    income_val := FLOOR(RANDOM() * (8000 - 4000 + 1) + 4000);
+                    credit_score_val := FLOOR(RANDOM() * (800 - 600 + 1) + 600);
+                  ELSIF counter <= 750 THEN
+                    age_val := FLOOR(RANDOM() * (55 - 41 + 1) + 41);
+                    income_val := FLOOR(RANDOM() * (12000 - 6000 + 1) + 6000);
+                    credit_score_val := FLOOR(RANDOM() * (850 - 650 + 1) + 650);
+                  ELSE
+                    age_val := FLOOR(RANDOM() * (75 - 56 + 1) + 56);
+                    income_val := FLOOR(RANDOM() * (7000 - 3000 + 1) + 3000);
+                    credit_score_val := FLOOR(RANDOM() * (820 - 580 + 1) + 580);
+                  END IF;
+
+                  INSERT INTO users (name, age, monthly_income, credit_score, role)
+                  VALUES (
+                    'User ' || counter,
+                    age_val,
+                    income_val,
+                    credit_score_val,
+                    'USER'
+                  );
+                END LOOP;
+              END;
+              $$ LANGUAGE plpgsql;
+            splitStatements: false
+
+  # Create Accounts
+  - changeSet:
+      id: 004-create-accounts
+      author: developer
+      changes:
+        - sql:
+            sql: |
+              DO $$
+              DECLARE
+                user_record RECORD;
+                num_accounts INTEGER;
+                initial_balance NUMERIC(19,2);
+              BEGIN
+                FOR user_record IN SELECT user_id FROM users LOOP
+                  num_accounts := FLOOR(RANDOM() * 3 + 1);
+
+                  FOR account_counter IN 1..num_accounts LOOP
+                    initial_balance := FLOOR(RANDOM() * (50000 - 1000 + 1) + 1000);
+
+                    INSERT INTO accounts (balance, status, user_id)
+                    VALUES (
+                      initial_balance,
+                      CASE WHEN RANDOM() > 0.05 THEN 'ACTIVE' ELSE 'BLOCKED' END,
+                      user_record.user_id
+                    );
+                  END LOOP;
+                END LOOP;
+              END;
+              $$ LANGUAGE plpgsql;
+            splitStatements: false
+
+  # Generate Transactions
+  - changeSet:
+      id: 005-create-transactions
+      author: developer
+      changes:
+        - sql:
+            sql: |
+              DO $$
+              DECLARE
+                source_account RECORD;
+                dest_account_id BIGINT;
+                transaction_amount NUMERIC(19,2);
+                transaction_date TIMESTAMP;
+              BEGIN
+                FOR counter IN 1..10000 LOOP
+                  SELECT account_id, balance INTO source_account
+                  FROM accounts
+                  WHERE status = 'ACTIVE'
+                  ORDER BY RANDOM()
+                  LIMIT 1;
+
+                  SELECT account_id INTO dest_account_id
+                  FROM accounts
+                  WHERE account_id != source_account.account_id
+                    AND status = 'ACTIVE'
+                  ORDER BY RANDOM()
+                  LIMIT 1;
+
+                  transaction_amount := (RANDOM() * (source_account.balance * 0.2));
+                  transaction_date := CURRENT_TIMESTAMP - (RANDOM() * INTERVAL '365 days');
+
+                  INSERT INTO transactions (
+                    type,
+                    amount,
+                    source_account_id,
+                    destination_account_id,
+                    status,
+                    created_at
+                  )
+                  VALUES (
+                    CASE WHEN RANDOM() > 0.7 THEN 'INSTANT' ELSE 'STANDARD' END,
+                    transaction_amount,
+                    source_account.account_id,
+                    dest_account_id,
+                    CASE
+                      WHEN RANDOM() > 0.95 THEN 'REJECTED'
+                      WHEN RANDOM() > 0.90 THEN 'PENDING'
+                      ELSE 'COMPLETED'
+                    END,
+                    transaction_date
+                  );
+                END LOOP;
+              END;
+              $$ LANGUAGE plpgsql;
+            splitStatements: false
