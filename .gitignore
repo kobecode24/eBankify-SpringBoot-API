@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Logs ###
+logs/
+*.log
+
+### Local configuration ###
+/src/main/resources/application.yml
