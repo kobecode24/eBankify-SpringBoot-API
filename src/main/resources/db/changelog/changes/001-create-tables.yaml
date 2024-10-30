@@ -1,8 +1,9 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-users-table
+      id: 001-create-tables
       author: developer
       changes:
+        # Users table
         - createTable:
             tableName: users
             columns:
@@ -25,22 +26,21 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: monthly_income
-                  type: decimal(19,2)
+                  type: double precision
                   constraints:
                     nullable: false
               - column:
                   name: credit_score
                   type: int
+                  constraints:
+                    nullable: false
               - column:
                   name: role
                   type: varchar(50)
                   constraints:
                     nullable: false
 
-  - changeSet:
-      id: 002-create-accounts-table
-      author: developer
-      changes:
+        # Accounts table
         - createTable:
             tableName: accounts
             columns:
@@ -53,7 +53,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: balance
-                  type: decimal(19,2)
+                  type: double precision
                   constraints:
                     nullable: false
               - column:
@@ -69,10 +69,7 @@ databaseChangeLog:
                     foreignKeyName: fk_account_user
                     references: users(user_id)
 
-  - changeSet:
-      id: 003-create-transactions-table
-      author: developer
-      changes:
+        # Transactions table
         - createTable:
             tableName: transactions
             columns:
@@ -90,7 +87,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: amount
-                  type: decimal(19,2)
+                  type: double precision
                   constraints:
                     nullable: false
               - column:
@@ -115,6 +112,101 @@ databaseChangeLog:
               - column:
                   name: created_at
                   type: timestamp
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  defaultValueDate: CURRENT_TIMESTAMP
+
+        # Invoices table
+        - createTable:
+            tableName: invoices
+            columns:
+              - column:
+                  name: invoice_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount_due
+                  type: double precision
                   constraints:
                     nullable: false
+              - column:
+                  name: due_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_invoice_user
+                    references: users(user_id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP
+
+        # Loans table
+        - createTable:
+            tableName: loans
+            columns:
+              - column:
+                  name: loan_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: principal
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: interest_rate
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: term_months
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: monthly_payment
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: remaining_amount
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_loan_user
+                    references: users(user_id)
+              - column:
+                  name: start_date
+                  type: date
+              - column:
+                  name: end_date
+                  type: date
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP
