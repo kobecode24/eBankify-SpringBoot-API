@@ -20,6 +20,17 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
                   name: age
                   type: int
                   constraints:
@@ -68,6 +79,7 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_account_user
                     references: users(user_id)
+                    deleteCascade: true
 
         # Transactions table
         - createTable:
@@ -113,6 +125,8 @@ databaseChangeLog:
                   name: created_at
                   type: timestamp
                   defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
 
         # Invoices table
         - createTable:
@@ -136,6 +150,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: paid_date
+                  type: date
+              - column:
                   name: status
                   type: varchar(50)
                   constraints:
@@ -147,10 +164,19 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_invoice_user
                     references: users(user_id)
+                    deleteCascade: true
               - column:
                   name: created_at
                   type: timestamp
                   defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
 
         # Loans table
         - createTable:
@@ -200,6 +226,7 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_loan_user
                     references: users(user_id)
+                    deleteCascade: true
               - column:
                   name: start_date
                   type: date
@@ -207,6 +234,26 @@ databaseChangeLog:
                   name: end_date
                   type: date
               - column:
+                  name: guarantees
+                  type: text
+              - column:
                   name: created_at
                   type: timestamp
                   defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        # Add comments to tables
+        - sql:
+            sql: |
+              COMMENT ON TABLE users IS 'Stores user information including customers, employees, and administrators';
+              COMMENT ON TABLE accounts IS 'Bank accounts belonging to users';
+              COMMENT ON TABLE transactions IS 'Record of all financial transactions between accounts';
+              COMMENT ON TABLE invoices IS 'Billing records for bank services and fees';
+              COMMENT ON TABLE loans IS 'Loan applications and their current status';

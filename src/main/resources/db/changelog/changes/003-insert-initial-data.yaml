@@ -11,6 +11,9 @@ databaseChangeLog:
                   name: name
                   value: "Admin Principal"
               - column:
+                  name: email
+                  value: "admin-principal@example.com"
+              - column:
                   name: age
                   value: "35"
               - column:
@@ -22,12 +25,18 @@ databaseChangeLog:
               - column:
                   name: role
                   value: "ADMIN"
+              - column:
+                  name: password
+                  value: "$2a$10$EblN0qSJB0xoga.FWp5Xuea2iXh4nL2Lk9QZcvrBekzvOft/Sifr6" # admin123
         - insert:
             tableName: users
             columns:
               - column:
                   name: name
                   value: "Admin Secondary"
+              - column:
+                  name: email
+                  value: "admin-secondary@example.com"
               - column:
                   name: age
                   value: "32"
@@ -40,263 +49,192 @@ databaseChangeLog:
               - column:
                   name: role
                   value: "ADMIN"
+              - column:
+                  name: password
+                  value: "$2a$10$EblN0qSJB0xoga.FWp5Xuea2iXh4nL2Lk9QZcvrBekzvOft/Sifr6" # admin123
 
   # Employee Users
   - changeSet:
       id: 002-insert-employees
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              BEGIN
-                FOR counter IN 1..50 LOOP
-                  INSERT INTO users (name, age, monthly_income, credit_score, role)
-                  VALUES (
-                    'Employee ' || counter,
-                    FLOOR(RANDOM() * (60 - 25 + 1) + 25)::INTEGER,
-                    FLOOR(RANDOM() * (7000 - 4000 + 1) + 4000)::DOUBLE PRECISION,
-                    FLOOR(RANDOM() * (820 - 700 + 1) + 700)::INTEGER,
-                    'EMPLOYEE'
-                  );
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
+        - loadData:
+            tableName: users
+            file: db/data/employees.csv
+            separator: ','
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: email
+                  type: STRING
+              - column:
+                  name: age
+                  type: NUMERIC
+              - column:
+                  name: monthly_income
+                  type: NUMERIC
+              - column:
+                  name: credit_score
+                  type: NUMERIC
+              - column:
+                  name: role
+                  type: STRING
+              - column:
+                  name: password
+                  type: STRING
 
   # Regular Users
   - changeSet:
       id: 003-insert-regular-users
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              DECLARE
-                age_val INTEGER;
-                income_val DOUBLE PRECISION;
-                credit_score_val INTEGER;
-              BEGIN
-                FOR counter IN 1..1000 LOOP
-                  IF counter <= 250 THEN
-                    age_val := FLOOR(RANDOM() * (25 - 18 + 1) + 18);
-                    income_val := FLOOR(RANDOM() * (4000 - 2000 + 1) + 2000);
-                    credit_score_val := FLOOR(RANDOM() * (700 - 500 + 1) + 500);
-                  ELSIF counter <= 500 THEN
-                    age_val := FLOOR(RANDOM() * (40 - 26 + 1) + 26);
-                    income_val := FLOOR(RANDOM() * (8000 - 4000 + 1) + 4000);
-                    credit_score_val := FLOOR(RANDOM() * (800 - 600 + 1) + 600);
-                  ELSIF counter <= 750 THEN
-                    age_val := FLOOR(RANDOM() * (55 - 41 + 1) + 41);
-                    income_val := FLOOR(RANDOM() * (12000 - 6000 + 1) + 6000);
-                    credit_score_val := FLOOR(RANDOM() * (850 - 650 + 1) + 650);
-                  ELSE
-                    age_val := FLOOR(RANDOM() * (75 - 56 + 1) + 56);
-                    income_val := FLOOR(RANDOM() * (7000 - 3000 + 1) + 3000);
-                    credit_score_val := FLOOR(RANDOM() * (820 - 580 + 1) + 580);
-                  END IF;
+        - loadData:
+            tableName: users
+            file: db/data/regular_users.csv
+            separator: ','
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: email
+                  type: STRING
+              - column:
+                  name: age
+                  type: NUMERIC
+              - column:
+                  name: monthly_income
+                  type: NUMERIC
+              - column:
+                  name: credit_score
+                  type: NUMERIC
+              - column:
+                  name: role
+                  type: STRING
+              - column:
+                  name: password
+                  type: STRING
 
-                  INSERT INTO users (name, age, monthly_income, credit_score, role)
-                  VALUES (
-                    'User ' || counter,
-                    age_val,
-                    income_val,
-                    credit_score_val,
-                    'USER'
-                  );
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
-
-  # Create Accounts
+  # Accounts
   - changeSet:
-      id: 004-create-accounts
+      id: 004-insert-accounts
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              DECLARE
-                user_record RECORD;
-                num_accounts INTEGER;
-                initial_balance DOUBLE PRECISION;
-              BEGIN
-                FOR user_record IN SELECT user_id FROM users LOOP
-                  num_accounts := FLOOR(RANDOM() * 3 + 1);
-              
-                  FOR account_counter IN 1..num_accounts LOOP
-                    initial_balance := FLOOR(RANDOM() * (50000 - 1000 + 1) + 1000);
-              
-                    INSERT INTO accounts (balance, status, user_id)
-                    VALUES (
-                      initial_balance,
-                      CASE WHEN RANDOM() > 0.05 THEN 'ACTIVE' ELSE 'BLOCKED' END,
-                      user_record.user_id
-                    );
-                  END LOOP;
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
+        - loadData:
+            tableName: accounts
+            file: db/data/accounts.csv
+            separator: ','
+            columns:
+              - column:
+                  name: account_id
+                  type: NUMERIC
+              - column:
+                  name: balance
+                  type: NUMERIC
+              - column:
+                  name: status
+                  type: STRING
+              - column:
+                  name: user_id
+                  type: NUMERIC
 
-  # Generate Transactions
+  # Transactions
   - changeSet:
-      id: 005-create-transactions
+      id: 005-insert-transactions
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              DECLARE
-                source_account RECORD;
-                dest_account_id BIGINT;
-                transaction_amount DOUBLE PRECISION;
-                transaction_date TIMESTAMP;
-              BEGIN
-                FOR counter IN 1..10000 LOOP
-                  SELECT account_id, balance INTO source_account
-                  FROM accounts
-                  WHERE status = 'ACTIVE'
-                  ORDER BY RANDOM()
-                  LIMIT 1;
+        - loadData:
+            tableName: transactions
+            file: db/data/transactions.csv
+            separator: ','
+            columns:
+              - column:
+                  name: type
+                  type: STRING
+              - column:
+                  name: amount
+                  type: NUMERIC
+              - column:
+                  name: source_account_id
+                  type: NUMERIC
+              - column:
+                  name: destination_account_id
+                  type: NUMERIC
+              - column:
+                  name: status
+                  type: STRING
+              - column:
+                  name: created_at
+                  type: DATE
 
-                  SELECT account_id INTO dest_account_id
-                  FROM accounts
-                  WHERE account_id != source_account.account_id
-                    AND status = 'ACTIVE'
-                  ORDER BY RANDOM()
-                  LIMIT 1;
-
-                  transaction_amount := (RANDOM() * (source_account.balance * 0.2));
-                  transaction_date := CURRENT_TIMESTAMP - (RANDOM() * INTERVAL '365 days');
-
-                  INSERT INTO transactions (
-                    type,
-                    amount,
-                    source_account_id,
-                    destination_account_id,
-                    status,
-                    created_at
-                  )
-                  VALUES (
-                    CASE WHEN RANDOM() > 0.7 THEN 'INSTANT' ELSE 'STANDARD' END,
-                    transaction_amount,
-                    source_account.account_id,
-                    dest_account_id,
-                    CASE
-                      WHEN RANDOM() > 0.95 THEN 'REJECTED'
-                      WHEN RANDOM() > 0.90 THEN 'PENDING'
-                      ELSE 'COMPLETED'
-                    END,
-                    transaction_date
-                  );
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
-
-  # Generate Invoices
+  # Loans
   - changeSet:
-      id: 006-create-invoices
+      id: 006-insert-loans
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              DECLARE
-                user_record RECORD;
-                invoice_amount DOUBLE PRECISION;
-                due_date DATE;
-              BEGIN
-                FOR user_record IN SELECT user_id FROM users WHERE role = 'USER' LOOP
-                  FOR counter IN 1..FLOOR(RANDOM() * 5 + 1)::INTEGER LOOP
-                    invoice_amount := FLOOR(RANDOM() * (1000 - 100 + 1) + 100);
-                    due_date := CURRENT_DATE + (FLOOR(RANDOM() * 30 + 1))::INTEGER;
-              
-                    INSERT INTO invoices (
-                      amount_due,
-                      due_date,
-                      status,
-                      user_id,
-                      created_at
-                    )
-                    VALUES (
-                      invoice_amount,
-                      due_date,
-                      CASE 
-                        WHEN RANDOM() > 0.9 THEN 'OVERDUE'
-                        WHEN RANDOM() > 0.7 THEN 'PAID'
-                        ELSE 'PENDING'
-                      END,
-                      user_record.user_id,
-                      CURRENT_TIMESTAMP - (RANDOM() * INTERVAL '90 days')
-                    );
-                  END LOOP;
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
+        - loadData:
+            tableName: loans
+            file: db/data/loans.csv
+            separator: ','
+            columns:
+              - column:
+                  name: principal
+                  type: NUMERIC
+              - column:
+                  name: interest_rate
+                  type: NUMERIC
+              - column:
+                  name: term_months
+                  type: NUMERIC
+              - column:
+                  name: monthly_payment
+                  type: NUMERIC
+              - column:
+                  name: remaining_amount
+                  type: NUMERIC
+              - column:
+                  name: status
+                  type: STRING
+              - column:
+                  name: user_id
+                  type: NUMERIC
+              - column:
+                  name: start_date
+                  type: DATE
+              - column:
+                  name: end_date
+                  type: DATE
+              - column:
+                  name: guarantees
+                  type: STRING
 
-  # Generate Loans
+  # Invoices
   - changeSet:
-      id: 007-create-loans
+      id: 007-insert-invoices
       author: developer
       changes:
-        - sql:
-            sql: |
-              DO $$
-              DECLARE
-                user_record RECORD;
-                loan_principal DOUBLE PRECISION;
-                loan_interest DOUBLE PRECISION;
-                loan_term INTEGER;
-                monthly_payment DOUBLE PRECISION;
-              BEGIN
-                FOR user_record IN 
-                  SELECT user_id, credit_score, monthly_income 
-                  FROM users 
-                  WHERE role = 'USER' 
-                  AND credit_score > 650 
-                LOOP
-                  IF RANDOM() > 0.7 THEN
-                    loan_principal := FLOOR(RANDOM() * (50000 - 5000 + 1) + 5000);
-                    loan_interest := 5 + (RANDOM() * 10);
-                    loan_term := FLOOR(RANDOM() * (60 - 12 + 1) + 12)::INTEGER;
-              
-                    -- Simple monthly payment calculation
-                    monthly_payment := (loan_principal * (1 + loan_interest/100)) / loan_term;
-              
-                    INSERT INTO loans (
-                      principal,
-                      interest_rate,
-                      term_months,
-                      monthly_payment,
-                      remaining_amount,
-                      status,
-                      user_id,
-                      start_date,
-                      end_date,
-                      created_at
-                    )
-                    VALUES (
-                      loan_principal,
-                      loan_interest,
-                      loan_term,
-                      monthly_payment,
-                      loan_principal,
-                      CASE 
-                        WHEN RANDOM() > 0.9 THEN 'REJECTED'
-                        WHEN RANDOM() > 0.8 THEN 'PENDING'
-                        ELSE 'ACTIVE'
-                      END,
-                      user_record.user_id,
-                      CURRENT_DATE - INTEGER '30',
-                      CURRENT_DATE + (loan_term * 30),
-                      CURRENT_TIMESTAMP - (RANDOM() * INTERVAL '180 days')
-                    );
-                  END IF;
-                END LOOP;
-              END;
-              $$ LANGUAGE plpgsql;
-            splitStatements: false
+        - loadData:
+            tableName: invoices
+            file: db/data/invoices.csv
+            separator: ','
+            columns:
+              - column:
+                  name: amount_due
+                  type: NUMERIC
+              - column:
+                  name: due_date
+                  type: DATE
+              - column:
+                  name: status
+                  type: STRING
+              - column:
+                  name: user_id
+                  type: NUMERIC
+              - column:
+                  name: created_at
+                  type: DATE
+              - column:
+                  name: updated_at
+                  type: DATE
