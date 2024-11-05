@@ -18,6 +18,12 @@ public class User {
     private Long userId;
 
     private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    private String password;
+
     private Integer age;
     private Double monthlyIncome;
     private Integer creditScore;

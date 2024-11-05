@@ -2,9 +2,11 @@ package org.system.bank.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.system.bank.dto.request.TransactionRequest;
 import org.system.bank.dto.response.TransactionResponse;
 import org.system.bank.entity.Transaction;
+import org.system.bank.enums.TransactionType;
 
 import java.util.List;
 
@@ -20,15 +22,15 @@ public interface TransactionMapper {
 
     @Mapping(target = "sourceAccountId", source = "sourceAccount.accountId")
     @Mapping(target = "destinationAccountId", source = "destinationAccount.accountId")
-    @Mapping(target = "fee", expression = "java(calculateTransactionFee(transaction))")
+    @Mapping(target = "fee", source = ".", qualifiedByName = "calculateFee")
     TransactionResponse toResponse(Transaction transaction);
 
     List<TransactionResponse> toResponseList(List<Transaction> transactions);
 
-    default Double calculateTransactionFee(Transaction transaction) {
-        return switch (transaction.getType()) {
-            case INSTANT -> transaction.getAmount() * 0.005; // 0.5%
-            case STANDARD -> transaction.getAmount() * 0.001; // 0.1%
-        };
+    @Named("calculateFee")
+    default Double calculateFee(Transaction transaction) {
+        return transaction.getType() == TransactionType.INSTANT ?
+                transaction.getAmount() * 0.005 : // 0.5%
+                transaction.getAmount() * 0.001;  // 0.1%
     }
 }

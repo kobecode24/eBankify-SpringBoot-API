@@ -15,6 +15,7 @@ import java.util.List;
 public class UserResponse {
     private Long userId;
     private String name;
+    private String email;
     private Integer age;
     private Double monthlyIncome;
     private Integer creditScore;
