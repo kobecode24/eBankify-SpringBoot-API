@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long transactionId;
 
     @Enumerated(EnumType.STRING)

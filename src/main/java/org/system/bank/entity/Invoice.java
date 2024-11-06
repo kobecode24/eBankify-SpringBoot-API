@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Invoice {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long invoiceId;
 
     @Column(nullable = false)
