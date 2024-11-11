@@ -8,6 +8,7 @@ import org.system.bank.dto.response.LoanResponse;
 import org.system.bank.entity.Loan;
 import org.system.bank.entity.User;
 import org.system.bank.enums.LoanStatus;
+import org.system.bank.exception.LoanEligibilityException;
 import org.system.bank.mapper.LoanMapper;
 import org.system.bank.repository.LoanRepository;
 import org.system.bank.repository.UserRepository;
@@ -110,25 +111,37 @@ public class LoanServiceImpl implements LoanService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        if (user.getAge() < 18) {
-            return false;
-        }
-
-        if (user.getCreditScore() < 650) {
-            return false;
-        }
-
-        if (user.getMonthlyIncome() < 3000.0) {
-            return false;
-        }
+        validateAge(user.getAge());
+        validateCreditScore(user.getCreditScore());
+        validateIncome(user.getMonthlyIncome());
 
         Double totalDebt = calculateTotalDebt(userId);
-        if (totalDebt == null) {
-            totalDebt = 0.0;
-        }
-
-        return (totalDebt + amount) <= (user.getMonthlyIncome() * 12);
+        return isEligibleForLoanAmount(user, amount, totalDebt);
     }
+
+    private boolean isEligibleForLoanAmount(User user, Double amount, Double totalDebt) {
+        double maxLoanAmount = user.getMonthlyIncome() * 0.5;
+        return amount <= maxLoanAmount && amount + totalDebt <= maxLoanAmount;
+    }
+
+    private void validateAge(Integer age) {
+        if (age < 18) {
+            throw new LoanEligibilityException("Applicant must be at least 18 years old");
+        }
+    }
+
+    private void validateCreditScore(Integer creditScore) {
+        if (creditScore < 650) {
+            throw new LoanEligibilityException("Credit score must be at least 650");
+        }
+    }
+
+    private void validateIncome(Double monthlyIncome) {
+        if (monthlyIncome < 3000.0) {
+            throw new LoanEligibilityException("Minimum monthly income requirement not met");
+        }
+    }
+
     @Override
     public LoanResponse processLoanPayment(Long loanId, Double amount) {
         Loan loan = findLoanById(loanId);

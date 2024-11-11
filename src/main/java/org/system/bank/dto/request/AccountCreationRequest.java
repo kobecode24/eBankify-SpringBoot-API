@@ -16,6 +16,6 @@ public class AccountCreationRequest {
     private Long userId;
 
     @NotNull
-    @Positive
+    @Positive(message = "Initial deposit must be greater than 0")
     private Double initialDeposit;
 }

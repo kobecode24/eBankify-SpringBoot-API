@@ -28,9 +28,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse createAccount(AccountCreationRequest request) {
         User user = userService.getUserEntity(request.getUserId());
+        validateInitialDeposit(request.getInitialDeposit());
 
         Account account = accountMapper.toEntity(request);
         account.setUser(user);
+        account.setStatus(AccountStatus.ACTIVE);
         Account savedAccount = accountRepository.save(account);
 
         return accountMapper.toResponse(savedAccount);
@@ -122,5 +124,11 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toResponseList(
                 accountRepository.findAccountsWithBalanceGreaterThan(minBalance)
         );
+    }
+
+    private void validateInitialDeposit(Double initialDeposit) {
+        if (initialDeposit == null || initialDeposit < 0) {
+            throw new IllegalArgumentException("Initial deposit must be positive");
+        }
     }
 }

@@ -2,6 +2,7 @@ package org.system.bank.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.system.bank.dto.request.LoginRequest;
 import org.system.bank.dto.request.UserRegistrationRequest;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Validated
 public class AuthController {
 
     private final AuthService authService;

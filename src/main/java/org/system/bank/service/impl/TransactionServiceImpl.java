@@ -10,6 +10,7 @@ import org.system.bank.entity.Transaction;
 import org.system.bank.enums.AccountStatus;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
+import org.system.bank.exception.InsufficientFundsException;
 import org.system.bank.mapper.TransactionMapper;
 import org.system.bank.repository.TransactionRepository;
 import org.system.bank.service.AccountService;
@@ -99,7 +100,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public boolean isTransactionValid(TransactionRequest request) {
         if (request.getSourceAccountId().equals(request.getDestinationAccountId())) {
-            return false;
+            throw new IllegalArgumentException("Cannot transfer to same account");
         }
 
         Account sourceAccount = accountService.getAccountEntity(request.getSourceAccountId());
@@ -107,11 +108,19 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (sourceAccount.getStatus() != AccountStatus.ACTIVE ||
                 destAccount.getStatus() != AccountStatus.ACTIVE) {
-            return false;
+            throw new IllegalStateException("One or both accounts are not active");
         }
 
         double totalAmount = request.getAmount() + calculateTransactionFee(request);
-        return sourceAccount.getBalance() >= totalAmount && request.getAmount() > 0;
+        if (sourceAccount.getBalance() < totalAmount) {
+            throw new InsufficientFundsException("Insufficient funds for transaction");
+        }
+
+        if (request.getAmount() <= 0) {
+            throw new IllegalArgumentException("Transaction amount must be positive");
+        }
+
+        return true;
     }
 
     @Override
