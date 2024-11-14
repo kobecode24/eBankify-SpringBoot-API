@@ -10,8 +10,8 @@ import org.system.bank.entity.User;
 import org.system.bank.enums.LoanStatus;
 import org.system.bank.exception.LoanEligibilityException;
 import org.system.bank.mapper.LoanMapper;
-import org.system.bank.repository.LoanRepository;
-import org.system.bank.repository.UserRepository;
+import org.system.bank.repository.jpa.LoanRepository;
+import org.system.bank.repository.jpa.UserRepository;
 import org.system.bank.service.LoanService;
 
 import jakarta.persistence.EntityNotFoundException;

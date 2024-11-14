@@ -12,7 +12,7 @@ import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 import org.system.bank.exception.InsufficientFundsException;
 import org.system.bank.mapper.TransactionMapper;
-import org.system.bank.repository.TransactionRepository;
+import org.system.bank.repository.jpa.TransactionRepository;
 import org.system.bank.service.AccountService;
 import org.system.bank.service.TransactionService;
 

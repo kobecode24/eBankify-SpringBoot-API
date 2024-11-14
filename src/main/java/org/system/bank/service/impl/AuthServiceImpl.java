@@ -15,7 +15,7 @@ import org.system.bank.exception.InvalidEmailFormatException;
 import org.system.bank.exception.UnderageUserException;
 import org.system.bank.exception.WeakPasswordException;
 import org.system.bank.mapper.UserMapper;
-import org.system.bank.repository.UserRepository;
+import org.system.bank.repository.jpa.UserRepository;
 import org.system.bank.service.AuthService;
 
 import java.util.regex.Pattern;

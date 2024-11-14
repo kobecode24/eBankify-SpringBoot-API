@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.system.bank.entity.User;
-import org.system.bank.repository.LoanRepository;
+import org.system.bank.repository.jpa.LoanRepository;
 
 @Service
 @RequiredArgsConstructor
