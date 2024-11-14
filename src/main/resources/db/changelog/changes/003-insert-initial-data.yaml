@@ -167,7 +167,7 @@ databaseChangeLog:
                   type: STRING
               - column:
                   name: created_at
-                  type: DATE
+                  type: timestamp
 
   # Loans
   - changeSet:
@@ -234,7 +234,7 @@ databaseChangeLog:
                   type: NUMERIC
               - column:
                   name: created_at
-                  type: DATE
+                  type: timestamp
               - column:
                   name: updated_at
-                  type: DATE
+                  type: timestamp
