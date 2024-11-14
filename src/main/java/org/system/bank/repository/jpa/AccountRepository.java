@@ -1,4 +1,4 @@
-package org.system.bank.repository;
+package org.system.bank.repository.jpa;
 
 import org.system.bank.entity.Account;
 import org.system.bank.entity.User;
