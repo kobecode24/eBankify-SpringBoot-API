@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.system.bank.enums.Role;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,6 +47,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
-    private List<Account> accounts;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Account> accounts = new ArrayList<>();
 }
