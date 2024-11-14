@@ -10,7 +10,7 @@ import org.system.bank.entity.Account;
 import org.system.bank.entity.User;
 import org.system.bank.enums.AccountStatus;
 import org.system.bank.mapper.AccountMapper;
-import org.system.bank.repository.AccountRepository;
+import org.system.bank.repository.jpa.AccountRepository;
 import org.system.bank.service.base.BaseServiceTest;
 import org.system.bank.service.impl.AccountServiceImpl;
 import org.system.bank.util.TestDataBuilder;

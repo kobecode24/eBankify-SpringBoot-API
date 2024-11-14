@@ -8,6 +8,8 @@ import org.system.bank.entity.Loan;
 import org.system.bank.entity.User;
 import org.system.bank.enums.LoanStatus;
 import org.system.bank.enums.Role;
+import org.system.bank.repository.jpa.LoanRepository;
+import org.system.bank.repository.jpa.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

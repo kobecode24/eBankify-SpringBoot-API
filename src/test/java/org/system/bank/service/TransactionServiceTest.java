@@ -13,7 +13,7 @@ import org.system.bank.entity.Transaction;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 import org.system.bank.mapper.TransactionMapper;
-import org.system.bank.repository.TransactionRepository;
+import org.system.bank.repository.jpa.TransactionRepository;
 import org.system.bank.service.base.BaseServiceTest;
 import org.system.bank.service.impl.TransactionServiceImpl;
 import org.system.bank.util.TestDataBuilder;

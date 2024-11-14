@@ -11,6 +11,9 @@ import org.system.bank.enums.AccountStatus;
 import org.system.bank.enums.Role;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
+import org.system.bank.repository.jpa.AccountRepository;
+import org.system.bank.repository.jpa.TransactionRepository;
+import org.system.bank.repository.jpa.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

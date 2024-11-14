@@ -12,7 +12,7 @@ import org.system.bank.entity.Invoice;
 import org.system.bank.entity.User;
 import org.system.bank.enums.InvoiceStatus;
 import org.system.bank.mapper.InvoiceMapper;
-import org.system.bank.repository.InvoiceRepository;
+import org.system.bank.repository.jpa.InvoiceRepository;
 import org.system.bank.service.base.BaseServiceTest;
 import org.system.bank.service.impl.InvoiceServiceImpl;
 import org.system.bank.util.TestDataBuilder;

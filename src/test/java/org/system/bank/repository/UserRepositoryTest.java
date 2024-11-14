@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.system.bank.repository.base.BaseRepositoryTest;
 import org.system.bank.entity.User;
 import org.system.bank.enums.Role;
+import org.system.bank.repository.jpa.UserRepository;
 
 import java.util.List;
 import java.util.Optional;

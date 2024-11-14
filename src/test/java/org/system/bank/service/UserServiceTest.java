@@ -11,7 +11,7 @@ import org.system.bank.dto.response.UserResponse;
 import org.system.bank.entity.User;
 import org.system.bank.enums.Role;
 import org.system.bank.mapper.UserMapper;
-import org.system.bank.repository.UserRepository;
+import org.system.bank.repository.jpa.UserRepository;
 import org.system.bank.service.base.BaseServiceTest;
 import org.system.bank.service.impl.LoanEligibilityService;
 import org.system.bank.service.impl.UserServiceImpl;

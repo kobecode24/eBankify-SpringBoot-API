@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.system.bank.entity.User;
-import org.system.bank.repository.LoanRepository;
+import org.system.bank.repository.jpa.LoanRepository;
 import org.system.bank.service.base.BaseServiceTest;
 import org.system.bank.service.impl.LoanEligibilityService;
 import org.system.bank.util.TestDataBuilder;

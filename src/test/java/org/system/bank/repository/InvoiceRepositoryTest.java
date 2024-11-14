@@ -8,6 +8,8 @@ import org.system.bank.entity.Invoice;
 import org.system.bank.entity.User;
 import org.system.bank.enums.InvoiceStatus;
 import org.system.bank.enums.Role;
+import org.system.bank.repository.jpa.InvoiceRepository;
+import org.system.bank.repository.jpa.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
