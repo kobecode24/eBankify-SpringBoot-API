@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: demo3
+  main:
+    allow-bean-definition-overriding: true
+
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/demo3
+    username: "postgres"
+    password: "toor"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 120000
+      max-lifetime: 120000
+
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        generate_statistics: true
+    show-sql: false
+    open-in-view: false
+
+
+
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.data.elasticsearch: DEBUG  # Changed to DEBUG for more info
+    org.elasticsearch: DEBUG                       # Changed to DEBUG for more info
+    org.system.bank.service.search: DEBUG         # Changed to DEBUG for more info
+    org.system.bank: DEBUG
+    org.springframework: INFO
+    root: INFO
+    com.banking: INFO
+    org.springframework.web: INFO
+    org.hibernate: INFO
+    liquibase: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Server Configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
