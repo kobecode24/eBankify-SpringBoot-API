@@ -5,12 +5,17 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class SecurityConfig {
@@ -45,6 +50,10 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();  // Don't use in production!
+        Map<String, PasswordEncoder> encoders = new HashMap<>();
+        encoders.put("noop", NoOpPasswordEncoder.getInstance());
+        encoders.put("bcrypt", new BCryptPasswordEncoder());
+        encoders.put("scrypt", new SCryptPasswordEncoder(16384, 8, 1, 32, 16));
+        return new DelegatingPasswordEncoder("bcrypt", encoders);
     }
 }
