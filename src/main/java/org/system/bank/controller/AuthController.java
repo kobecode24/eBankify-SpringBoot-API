@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.system.bank.dto.request.LoginRequest;
 import org.system.bank.dto.request.UserRegistrationRequest;
-import org.system.bank.dto.response.LoginResponse;
+import org.system.bank.dto.response.AuthenticationResponse;
 import org.system.bank.dto.response.UserResponse;
 import org.system.bank.service.AuthService;
 
@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 }
