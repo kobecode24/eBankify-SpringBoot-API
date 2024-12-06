@@ -26,20 +26,31 @@ public class LoanServiceImpl implements LoanService {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final LoanMapper loanMapper;
+    private final LoanEligibilityService eligibilityService;
 
     @Override
     public LoanResponse createLoan(LoanApplicationRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        if (!isEligibleForLoan(user.getUserId(), request.getPrincipal())) {
-            throw new IllegalStateException("User is not eligible for this loan");
+        // Check eligibility
+        LoanEligibilityService.EligibilityResult eligibilityResult =
+                eligibilityService.checkEligibility(user, request.getPrincipal());
+
+        if (!eligibilityResult.isEligible()) {
+            String reasons = String.join("; ", eligibilityResult.getReasons());
+            throw new LoanEligibilityException("Loan application denied: " + reasons);
         }
 
+        // Create loan with calculated interest rate
         Loan loan = loanMapper.toEntity(request);
         loan.setUser(user);
-        loan.setInterestRate(calculateInterestRate(user, request.getPrincipal()));
-        loan.setMonthlyPayment(calculateInitialMonthlyPayment(request.getPrincipal(), loan.getInterestRate(), request.getTermMonths()));
+        loan.setInterestRate(eligibilityService.calculateInterestRate(user, request.getPrincipal()));
+        loan.setMonthlyPayment(calculateInitialMonthlyPayment(
+                request.getPrincipal(),
+                loan.getInterestRate(),
+                request.getTermMonths()
+        ));
         loan.setStartDate(LocalDate.now());
         loan.setEndDate(LocalDate.now().plusMonths(request.getTermMonths()));
         loan.setRemainingAmount(request.getPrincipal());
@@ -270,5 +281,10 @@ public class LoanServiceImpl implements LoanService {
 
         // Ensure minimum rate
         return Math.max(baseRate, 5.0);
+    }
+
+    @Override
+    public Loan getLoanEntity(Long loanId) {
+        return findLoanById(loanId);
     }
 }

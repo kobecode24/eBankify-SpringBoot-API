@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-otp-tokens
+      author: developer
+      changes:
+        - createTable:
+            tableName: otp_tokens
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: token
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_otp_user
+                    references: users(user_id)
+                    deleteCascade: true
+              - column:
+                  name: purpose
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false

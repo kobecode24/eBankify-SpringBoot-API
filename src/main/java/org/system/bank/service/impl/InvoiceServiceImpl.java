@@ -131,6 +131,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceMapper.toResponseList(invoices);
     }
 
+    @Override
+    public Invoice getInvoiceEntity(Long invoiceId) {
+        return findInvoiceById(invoiceId);
+    }
+
     private Invoice findInvoiceById(Long id) {
         return invoiceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));

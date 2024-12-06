@@ -166,6 +166,11 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
+    @Override
+    public Transaction getTransactionEntity(Long transactionId) {
+        return findTransactionById(transactionId);
+    }
+
     private Transaction findTransactionById(Long id) {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));

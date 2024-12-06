@@ -36,6 +36,9 @@ dependencies {
     implementation 'org.liquibase:liquibase-core'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    testImplementation 'org.springframework.security:spring-security-test'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
@@ -75,15 +78,17 @@ dependencies {
     // Test utilities
     testImplementation 'org.assertj:assertj-core:3.24.2'
 
-    // Elasticsearch dependencies
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'co.elastic.clients:elasticsearch-java:8.12.0'
-    implementation 'jakarta.json:jakarta.json-api:2.1.3'
-
-    implementation 'org.elasticsearch:elasticsearch:8.14.0'
-
     implementation 'com.google.guava:guava:32.0.0-android'
 
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // For generating secure random numbers (OTP)
+    implementation 'commons-codec:commons-codec:1.15'
+
+    // Aspect-oriented programming support
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 test {

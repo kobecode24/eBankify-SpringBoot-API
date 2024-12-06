@@ -1,13 +1,20 @@
 package org.system.bank.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.system.bank.dto.request.TransactionRequest;
 import org.system.bank.dto.response.TransactionResponse;
+import org.system.bank.enums.OtpPurpose;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 import org.system.bank.service.TransactionService;
+import org.system.bank.otp.RequiresOtp;
 
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -16,52 +23,73 @@ import java.util.List;
 @RestController
 @RequestMapping("/transactions")
 @RequiredArgsConstructor
+@Tag(name = "Transaction Management", description = "APIs for managing banking transactions")
+@PreAuthorize("isAuthenticated()")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
+    @Operation(summary = "Create new transaction", description = "Initiates a new transaction between accounts")
+    @ApiResponse(responseCode = "200", description = "Transaction created successfully")
+    @ApiResponse(responseCode = "403", description = "Insufficient permissions or funds")
+    @PreAuthorize("@transactionSecurity.canCreateTransaction(#request.sourceAccountId)")
     @PostMapping
+    @RequiresOtp(purpose = OtpPurpose.HIGH_VALUE_TRANSACTION)
     public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.createTransaction(request));
     }
 
+    @Operation(summary = "Get transaction details", description = "Retrieves details of a specific transaction")
+    @PreAuthorize("@transactionSecurity.canAccessTransaction(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<TransactionResponse> getTransaction(@PathVariable Long id) {
         return ResponseEntity.ok(transactionService.getTransactionById(id));
     }
 
+    @Operation(summary = "Get all transactions", description = "Retrieves all transactions in the system")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> getAllTransactions() {
         return ResponseEntity.ok(transactionService.getAllTransactions());
     }
 
+    @Operation(summary = "Get account transactions", description = "Retrieves all transactions for a specific account")
+    @PreAuthorize("@transactionSecurity.canAccessAccountTransactions(#accountId)")
     @GetMapping("/account/{accountId}")
     public ResponseEntity<List<TransactionResponse>> getTransactionsByAccount(@PathVariable Long accountId) {
         return ResponseEntity.ok(transactionService.getTransactionsByAccount(accountId));
     }
 
+    @Operation(summary = "Get transactions by type", description = "Retrieves transactions filtered by type")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/type/{type}")
     public ResponseEntity<List<TransactionResponse>> getTransactionsByType(@PathVariable TransactionType type) {
         return ResponseEntity.ok(transactionService.getTransactionsByType(type));
     }
 
+    @Operation(summary = "Get transactions by status", description = "Retrieves transactions filtered by status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<TransactionResponse>> getTransactionsByStatus(@PathVariable TransactionStatus status) {
         return ResponseEntity.ok(transactionService.getTransactionsByStatus(status));
     }
 
+    @Operation(summary = "Get transaction history", description = "Retrieves transaction history for an account within a date range")
+    @PreAuthorize("@transactionSecurity.canAccessAccountTransactions(#accountId)")
     @GetMapping("/history")
     public ResponseEntity<List<TransactionResponse>> getTransactionHistory(
             @RequestParam Long accountId,
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         return ResponseEntity.ok(transactionService.getAccountTransactionHistory(accountId, startDate, endDate));
     }
 
+    @Operation(summary = "Get daily transaction total", description = "Calculates total transaction amount for an account on a specific date")
+    @PreAuthorize("@transactionSecurity.canAccessAccountTransactions(#accountId)")
     @GetMapping("/daily-total")
     public ResponseEntity<Double> getDailyTransactions(
             @RequestParam Long accountId,
-            @RequestParam LocalDateTime date) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
         return ResponseEntity.ok(transactionService.calculateDailyTransactions(accountId, date));
     }
 }

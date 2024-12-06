@@ -1,6 +1,5 @@
 package org.system.bank.exception;
 
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
@@ -10,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.system.bank.dto.response.OtpRequiredResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -186,14 +188,54 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(message));
     }
 
-    @ExceptionHandler(ElasticsearchException.class)
+    @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleElasticsearchException(ElasticsearchException ex) {
-        log.error("Elasticsearch error: ", ex);
+    public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex) {
+        log.error("Null pointer exception occurred", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("Search service error: " + ex.getMessage()));
+                .body(new ErrorResponse("Error processing loan eligibility. Please try again or contact support."));
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String message = "Malformed or invalid JSON request";
+
+        Throwable cause = ex.getCause();
+        if (cause instanceof com.fasterxml.jackson.databind.exc.MismatchedInputException) {
+            message = "Invalid input format: " + cause.getMessage();
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(message));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("Access Denied: " + ex.getMessage()));
+    }
+
+    @ExceptionHandler(OtpRequiredException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<OtpRequiredResponse> handleOtpRequiredException(OtpRequiredException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getOtpRequiredResponse());
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleInvalidOtpException(InvalidOtpException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
 
     @Data
     @NoArgsConstructor

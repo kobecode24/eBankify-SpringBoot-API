@@ -1,12 +1,14 @@
 package org.system.bank.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.system.bank.config.JwtService;
+import org.system.bank.config.SecurityUser;
 import org.system.bank.dto.request.LoginRequest;
 import org.system.bank.dto.request.UserRegistrationRequest;
-import org.system.bank.dto.response.LoginResponse;
+import org.system.bank.dto.response.AuthenticationResponse;
 import org.system.bank.dto.response.UserResponse;
 import org.system.bank.entity.User;
 import org.system.bank.exception.AuthenticationException;
@@ -18,6 +20,7 @@ import org.system.bank.mapper.UserMapper;
 import org.system.bank.repository.jpa.UserRepository;
 import org.system.bank.service.AuthService;
 
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 @Service
@@ -27,6 +30,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder; // Use Spring's PasswordEncoder instead of BCrypt directly
 
     @Override
     public UserResponse register(UserRegistrationRequest request) {
@@ -51,8 +56,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = userMapper.toEntity(request);
-        // Encode the password using jBCrypt before saving
-        user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+        // Use Spring's PasswordEncoder
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user = userRepository.save(user);
 
         return userMapper.toResponse(user);
@@ -71,20 +76,48 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
 
-        // Verify password using jBCrypt
-        if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException("Invalid credentials");
         }
 
-        return new LoginResponse(
-                user.getUserId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole()
-        );
+        SecurityUser securityUser = new SecurityUser(user);
+        String jwtToken = jwtService.generateToken(new HashMap<>(), securityUser);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return AuthenticationResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole())
+                .token(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public AuthenticationResponse refreshToken(String refreshToken) {
+        final String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new AuthenticationException("User not found"));
+
+            SecurityUser securityUser = new SecurityUser(user);
+            if (jwtService.isTokenValid(refreshToken, securityUser)) {
+                String newToken = jwtService.generateToken(new HashMap<>(), securityUser);
+                return AuthenticationResponse.builder()
+                        .userId(user.getUserId())
+                        .email(user.getEmail())
+                        .name(user.getName())
+                        .role(user.getRole())
+                        .token(newToken)
+                        .refreshToken(refreshToken)
+                        .build();
+            }
+        }
+        throw new AuthenticationException("Invalid refresh token");
     }
 }

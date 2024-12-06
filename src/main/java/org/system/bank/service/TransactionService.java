@@ -2,6 +2,7 @@ package org.system.bank.service;
 
 import org.system.bank.dto.request.TransactionRequest;
 import org.system.bank.dto.response.TransactionResponse;
+import org.system.bank.entity.Transaction;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 
@@ -21,4 +22,5 @@ public interface TransactionService {
     Double calculateTransactionFee(TransactionRequest request);
     boolean isTransactionValid(TransactionRequest request);
     List<TransactionResponse> getAccountTransactionHistory(Long accountId, LocalDateTime startDate, LocalDateTime endDate);
+    Transaction getTransactionEntity(Long transactionId);
 }
