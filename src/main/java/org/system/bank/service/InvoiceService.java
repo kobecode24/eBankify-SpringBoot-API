@@ -2,6 +2,7 @@ package org.system.bank.service;
 
 import org.system.bank.dto.request.InvoiceCreationRequest;
 import org.system.bank.dto.response.InvoiceResponse;
+import org.system.bank.entity.Invoice;
 import org.system.bank.enums.InvoiceStatus;
 
 import java.time.LocalDate;
@@ -21,4 +22,5 @@ public interface InvoiceService {
     boolean hasOverdueInvoices(Long userId);
     void markInvoicesAsOverdue();
     List<InvoiceResponse> getInvoicesByDueDate(LocalDate dueDate);
+    Invoice getInvoiceEntity(Long invoiceId);
 }

@@ -2,6 +2,7 @@ package org.system.bank.service;
 
 import org.system.bank.dto.request.LoanApplicationRequest;
 import org.system.bank.dto.response.LoanResponse;
+import org.system.bank.entity.Loan;
 import org.system.bank.enums.LoanStatus;
 
 import java.util.List;
@@ -23,4 +24,5 @@ public interface LoanService {
     LoanResponse approveLoan(Long loanId);
     LoanResponse rejectLoan(Long loanId);
     Double calculateInterestRate(Long userId, Double amount);
+    Loan getLoanEntity(Long loanId);
 }
