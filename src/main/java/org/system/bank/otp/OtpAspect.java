@@ -10,7 +10,6 @@ import org.system.bank.config.SecurityUser;
 import org.system.bank.dto.response.OtpRequiredResponse;
 import org.system.bank.exception.InvalidOtpException;
 import org.system.bank.exception.OtpRequiredException;
-import org.system.bank.service.OtpService;
 
 @Aspect
 @Component

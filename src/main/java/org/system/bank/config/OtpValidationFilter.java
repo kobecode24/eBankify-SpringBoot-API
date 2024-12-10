@@ -19,7 +19,7 @@ import org.system.bank.enums.OtpPurpose;
 import org.system.bank.exception.GlobalExceptionHandler;
 import org.system.bank.exception.InvalidOtpException;
 import org.system.bank.exception.OtpRequiredException;
-import org.system.bank.service.OtpService;
+import org.system.bank.otp.OtpService;
 
 import java.io.IOException;
 import java.util.Arrays;
