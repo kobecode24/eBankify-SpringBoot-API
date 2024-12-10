@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.system.bank.config.SecurityUser;
 import org.system.bank.dto.request.OtpRequest;
 import org.system.bank.dto.response.OtpResponse;
-import org.system.bank.service.OtpService;
+import org.system.bank.otp.OtpService;
 
 @RestController
 @RequestMapping("/otp")
