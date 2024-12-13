@@ -10,7 +10,7 @@ import org.system.bank.enums.TransactionType;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring"   , unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface TransactionMapper {
 
     @Mapping(target = "transactionId", ignore = true)

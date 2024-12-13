@@ -2,13 +2,14 @@ package org.system.bank.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.system.bank.dto.request.LoanApplicationRequest;
 import org.system.bank.dto.response.LoanResponse;
 import org.system.bank.entity.Loan;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring" , unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface LoanMapper {
 
     @Mapping(target = "loanId", ignore = true)

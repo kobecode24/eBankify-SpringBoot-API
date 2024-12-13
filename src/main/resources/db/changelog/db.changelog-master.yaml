@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-insert-initial-data.yaml
   - include:
       file: db/changelog/changes/004-add-otp-tokens.yaml
+  - include:
+        file: db/changelog/changes/005-add-keycloak-support.yaml

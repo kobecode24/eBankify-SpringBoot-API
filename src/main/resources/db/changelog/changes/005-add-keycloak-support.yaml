@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-keycloak-support
+      author: developer
+      changes:
+        - createTable:
+            tableName: user_keycloak_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_keycloak_roles
+                    references: users(user_id)
+              - column:
+                  name: role
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: keycloak_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: true
+                    unique: true
+
+        - createIndex:
+            indexName: idx_user_keycloak_id
+            tableName: users
+            columns:
+              - column:
+                  name: keycloak_id
+
+        - createIndex:
+            indexName: idx_user_keycloak_roles
+            tableName: user_keycloak_roles
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: role

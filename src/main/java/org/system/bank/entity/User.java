@@ -6,7 +6,9 @@ import lombok.*;
 import org.system.bank.enums.Role;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -50,4 +52,18 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Account> accounts = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_keycloak_roles",
+            joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private Set<String> keycloakRoles = new HashSet<>();
+
+    @Column(name = "keycloak_id")
+    private String keycloakId;
+
+    // Method to update the role based on Keycloak roles
+    public void updateRole(Role newRole) {
+        this.role = newRole;
+    }
 }
