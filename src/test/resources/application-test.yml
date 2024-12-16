@@ -29,9 +29,4 @@ spring:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
-server:
-  port: 8083
-  servlet:
-    context-path: /api
+    org.hibernate.type.descriptor.sql: TRACE
