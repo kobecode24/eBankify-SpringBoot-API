@@ -63,7 +63,7 @@ pipeline {
                         /opt/gradle-8.10.2/bin/gradle sonar \
                             -Dsonar.projectKey=banking-system \
                             -Dsonar.projectName=BankingSystem \
-                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.host.url=http://host.docker.internal:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     } else {
@@ -71,7 +71,7 @@ pipeline {
                         C:/gradle-8.10.2/bin/gradle sonar \
                             -Dsonar.projectKey=banking-system \
                             -Dsonar.projectName=BankingSystem \
-                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.host.url=http://host.docker.internal:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
