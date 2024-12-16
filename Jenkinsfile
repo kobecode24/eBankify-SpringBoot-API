@@ -11,17 +11,18 @@ pipeline {
         PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
     }
 
-    stage('Build') {
-        steps {
-            script {
-                if (isUnix()) {
-                    sh '/opt/gradle-8.10.2/bin/gradle clean build -x test'
-                } else {
-                    bat 'C:/gradle-8.10.2/bin/gradle clean build -x test'
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '/opt/gradle-8.10.2/bin/gradle clean build -x test'
+                    } else {
+                        bat 'C:/gradle-8.10.2/bin/gradle clean build -x test'
+                    }
                 }
             }
         }
-    }
 
         stage('Test') {
             steps {
