@@ -59,9 +59,21 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh "/opt/gradle-8.10.2/bin/gradle sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                        sh """
+                        /opt/gradle-8.10.2/bin/gradle sonar \
+                            -Dsonar.projectKey=banking-system \
+                            -Dsonar.projectName=BankingSystem \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
                     } else {
-                        bat "C:/gradle-8.10.2/bin/gradle sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                        bat """
+                        C:/gradle-8.10.2/bin/gradle sonar \
+                            -Dsonar.projectKey=banking-system \
+                            -Dsonar.projectName=BankingSystem \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
                     }
                 }
             }
@@ -71,13 +83,16 @@ pipeline {
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    docker.build("${DOCKER_IMAGE}:latest")
                 }
             }
         }
 
         stage('Manual Approval') {
             steps {
-                input message: 'Deploy to production?'
+                timeout(time: 5, unit: 'MINUTES') {
+                    input message: 'Deploy to production?', ok: 'Proceed'
+                }
             }
         }
 
