@@ -2,6 +2,11 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
+    // New plugins for CI/CD
+    id 'jacoco'  // For code coverage reporting
+    id 'org.sonarqube' version '4.4.1.3373'  // For code quality analysis
+    id 'com.github.spotbugs' version '5.0.13'  // For static code analysis
+    id 'checkstyle'  // For code style enforcement
 }
 
 group = 'org.system'
@@ -89,11 +94,87 @@ dependencies {
 
     // Aspect-oriented programming support
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+
+    // Additional testing and quality tools
+    implementation 'org.jacoco:org.jacoco.agent:0.8.10'
+
+    // SpotBugs dependencies
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+
+    // Additional test coverage tools
+    testImplementation 'org.pitest:pitest-junit5-plugin:1.1.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
+
+    // Performance testing
+    testImplementation 'org.apache.jmeter:ApacheJMeter_core:5.5'
+    testImplementation 'org.apache.jmeter:ApacheJMeter_java:5.5'
+
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory = layout.buildDirectory.dir('reports/jacoco')
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat = 'full'
+        showStandardStreams = true
     }
 }
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.projectKey', 'org.system.bank'
+        property 'sonar.projectName', 'Banking System'
+        property 'sonar.java.codeCoveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile
+        property 'sonar.junit.reportPaths', layout.buildDirectory.dir("test-results/test").get().asFile
+    }
+}
+
+checkstyle {
+    toolVersion = "10.12.4"
+    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+    showViolations = true
+}
+
+spotbugs {
+    toolVersion = '4.7.3'
+    effort = "max"
+    reportLevel = "medium"
+    excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    jacoco {
+        destinationFile = layout.buildDirectory.file('jacoco/jacocoTest.exec').get().asFile
+        classDumpDir = layout.buildDirectory.dir('jacoco/classpathdumps').get().asFile
+    }
+}
+
