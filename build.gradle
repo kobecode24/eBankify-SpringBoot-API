@@ -39,8 +39,6 @@ dependencies {
     // Extras
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     implementation 'org.liquibase:liquibase-core'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -161,13 +159,6 @@ checkstyle {
     toolVersion = "10.12.4"
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
     showViolations = true
-}
-
-spotbugs {
-    toolVersion = '4.7.3'
-    effort = "max"
-    reportLevel = "medium"
-    excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
 }
 
 tasks.named('test') {
