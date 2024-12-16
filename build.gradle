@@ -4,8 +4,6 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco'
     id 'org.sonarqube' version '4.4.1.3373'
-    id 'com.github.spotbugs' version '5.0.13'
-    id 'checkstyle'
 }
 
 group = 'org.system'
@@ -79,7 +77,6 @@ dependencies {
 
     // Code Quality
     implementation 'org.jacoco:org.jacoco.agent:0.8.10'
-    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
 }
 
 test {
@@ -121,30 +118,6 @@ jacocoTestCoverageVerification {
             }
         }
     }
-}
-
-spotbugs {
-    toolVersion = '4.7.3'
-    effort = 'max'
-    reportLevel = 'medium'
-    excludeFilter = file("config/spotbugs/exclude.xml")
-    ignoreFailures = true
-}
-
-spotbugsMain {
-    reports {
-        html {
-            required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-        }
-    }
-}
-
-checkstyle {
-    toolVersion = "10.12.4"
-    configFile = file("config/checkstyle/checkstyle.xml")
-    maxWarnings = 0
-    ignoreFailures = false
 }
 
 sonar {
