@@ -1,0 +1,164 @@
+spring:
+  application:
+    name: banking-api
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/auth/realms/bank-realm
+          jwk-set-uri: http://localhost:8081/auth/realms/bank-realm/protocol/openid-connect/certs
+
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking_db
+    username: "postgres"
+    password: "toor"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 120000
+      max-lifetime: 120000
+
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        generate_statistics: true
+    show-sql: false
+    open-in-view: false
+
+  # Liquibase Configuration
+  liquibase:
+    change-log: db/changelog/db.changelog-master.yaml
+    enabled: true
+    default-schema: public
+
+# Application-Specific Configuration
+banking:
+  transaction:
+    limits:
+      standard:
+        daily: 10000.00
+        single: 5000.00
+      instant:
+        daily: 20000.00
+        single: 10000.00
+    fees:
+      standard: 0.001 # 0.1%
+      instant: 0.005  # 0.5%
+
+  loan:
+    min-credit-score: 650
+    min-monthly-income: 3000.00
+    max-debt-ratio: 0.4
+    min-age: 18
+    min-relationship-months: 6
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.data.elasticsearch: DEBUG  # Changed to DEBUG for more info
+    org.elasticsearch: DEBUG                       # Changed to DEBUG for more info
+    org.system.bank.service.search: DEBUG         # Changed to DEBUG for more info
+    org.system.bank: DEBUG
+    org.springframework: INFO
+    root: INFO
+    com.banking: INFO
+    org.springframework.web: INFO
+    org.hibernate: INFO
+    liquibase: INFO
+    org.keycloak: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Server Configuration
+server:
+  port: 8083
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+  tomcat:
+    connection-timeout: 60000
+    max-connections: 10000
+    accept-count: 100
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: your_keystore_password
+    key-store-type: PKCS12
+    key-alias: bank
+    enabled: true
+    port: 8443
+
+
+# Springdoc and Swagger Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    defaultModelsExpandDepth: -1
+    defaultModelExpandDepth: 1
+    displayRequestDuration: true
+    filter: true
+    tagsSorter: alpha
+    operationsSorter: alpha
+    version: 3.0.1
+  packages-to-scan:
+    - org.system.bank.controller
+  paths-to-match:
+    - /api/**
+    - /users/**
+    - /loans/**
+    - /accounts/**
+    - /transactions/**
+
+
+
+
+keycloak:
+  realm: bank-realm
+  auth-server-url: http://localhost:8180
+  resource: bank-client
+  public-client: false
+  credentials:
+    secret: "QKdzjdwBjRI77LhXhrBqkGOiayUwGYji"
+  bearer-only: true
+  ssl-required: external
+  admin:
+    username: admin
+    password: admin
+    client-id: admin-cli
+    realm: master
+  policy-enforcer-config:
+    enforcement-mode: ENFORCING
+
