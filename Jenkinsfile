@@ -6,6 +6,11 @@ pipeline {
         jdk 'JDK 17'
     }
 
+    environment {
+        JAVA_HOME = '/opt/jdk-17.0.12+7'
+        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -40,9 +45,7 @@ pipeline {
 
     post {
         always {
-            node('built-in') {
-                cleanWs()
-            }
+            cleanWs()
         }
         success {
             echo 'Pipeline executed successfully!'
