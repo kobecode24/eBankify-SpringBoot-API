@@ -2,10 +2,10 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
-    // New plugins for CI/CD
-    id 'jacoco'  // For code coverage reporting
-    id 'org.sonarqube' version '4.4.1.3373'  // For code quality analysis
-    id 'com.github.spotbugs' version '5.0.13'  // For static code analysis
+    id 'jacoco'
+    id 'org.sonarqube' version '4.4.1.3373'
+    id 'com.github.spotbugs' version '5.0.13'
+    id 'checkstyle'
 }
 
 group = 'org.system'
@@ -25,95 +25,61 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven { url 'https://jcenter.bintray.com/' }
 }
 
-
 dependencies {
-    // Spring Boot dependencies
+    // Spring Boot Core
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // Extras
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-    implementation 'org.liquibase:liquibase-core'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-    testImplementation 'org.springframework.security:spring-security-test'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'org.postgresql:postgresql'
 
-    // Annotation processor
+    // Database
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+    implementation 'org.liquibase:liquibase-core'
+
+    // Security
+    implementation 'de.svenkubiak:jBCrypt:0.4'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // UI and Documentation
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.webjars:bootstrap:5.2.3'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-common:2.3.0'
+
+    // Tools and Utilities
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    implementation 'com.google.guava:guava:32.0.0-jre'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
-    // Security and encryption
-    implementation 'de.svenkubiak:jBCrypt:0.4'
-
-    // WebJars for Bootstrap
-    implementation 'org.webjars:bootstrap:5.2.3'
-
-    // OpenAPI/Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-    implementation 'org.springdoc:springdoc-openapi-starter-common:2.3.0'
-
-    // Testing dependencies
+    // Testing Dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
     testImplementation 'org.mockito:mockito-core:5.3.1'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
-    testImplementation 'com.h2database:h2'  // For integration tests
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 
-    // Testcontainers for integration testing with PostgreSQL
+    // Integration Testing
     testImplementation 'org.testcontainers:junit-jupiter:1.18.3'
     testImplementation 'org.testcontainers:postgresql:1.18.3'
 
-
-    // Test utilities
-    testImplementation 'org.assertj:assertj-core:3.24.2'
-
-    implementation 'com.google.guava:guava:32.0.0-android'
-
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-    // For generating secure random numbers (OTP)
-    implementation 'commons-codec:commons-codec:1.15'
-
-    // Aspect-oriented programming support
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-
-
-    // Additional testing and quality tools
+    // Code Quality
     implementation 'org.jacoco:org.jacoco.agent:0.8.10'
-
-    // SpotBugs dependencies
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
-
-    // Additional test coverage tools
-    testImplementation 'org.pitest:pitest-junit5-plugin:1.1.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
-
-    // Performance testing
-    testImplementation 'org.apache.jmeter:ApacheJMeter_core:5.5'
-    testImplementation 'org.apache.jmeter:ApacheJMeter_java:5.5'
-
-}
-
-jacoco {
-    toolVersion = "0.8.10"
-    reportsDirectory = layout.buildDirectory.dir('reports/jacoco')
 }
 
 test {
@@ -124,6 +90,11 @@ test {
         exceptionFormat = 'full'
         showStandardStreams = true
     }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory = layout.buildDirectory.dir('reports/jacoco')
 }
 
 jacocoTestReport {
@@ -142,7 +113,38 @@ jacocoTestCoverageVerification {
                 minimum = 0.80
             }
         }
+        rule {
+            element = 'CLASS'
+            excludes = ['**/*Application*', '**/*Config*', '**/*DTO*']
+            limit {
+                minimum = 0.80
+            }
+        }
     }
+}
+
+spotbugs {
+    toolVersion = '4.7.3'
+    effort = 'max'
+    reportLevel = 'medium'
+    excludeFilter = file("config/spotbugs/exclude.xml")
+    ignoreFailures = true
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+        }
+    }
+}
+
+checkstyle {
+    toolVersion = "10.12.4"
+    configFile = file("config/checkstyle/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = false
 }
 
 sonar {
@@ -153,9 +155,16 @@ sonar {
         property 'sonar.java.codeCoveragePlugin', 'jacoco'
         property 'sonar.coverage.jacoco.xmlReportPaths', layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile
         property 'sonar.junit.reportPaths', layout.buildDirectory.dir("test-results/test").get().asFile
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.exclusions', '**/generated/**'
+        property 'sonar.coverage.exclusions', [
+                '**/config/**',
+                '**/entity/**',
+                '**/dto/**',
+                '**/enums/**'
+        ]
     }
 }
-
 
 tasks.named('test') {
     useJUnitPlatform()
@@ -165,3 +174,6 @@ tasks.named('test') {
     }
 }
 
+tasks.named('check') {
+    dependsOn tasks.named('jacocoTestCoverageVerification')
+}
