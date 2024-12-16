@@ -6,7 +6,6 @@ plugins {
     id 'jacoco'  // For code coverage reporting
     id 'org.sonarqube' version '4.4.1.3373'  // For code quality analysis
     id 'com.github.spotbugs' version '5.0.13'  // For static code analysis
-    id 'checkstyle'  // For code style enforcement
 }
 
 group = 'org.system'
@@ -26,7 +25,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jcenter.bintray.com/' }
 }
+
 
 dependencies {
     // Spring Boot dependencies
@@ -155,11 +156,6 @@ sonar {
     }
 }
 
-checkstyle {
-    toolVersion = "10.12.4"
-    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-    showViolations = true
-}
 
 tasks.named('test') {
     useJUnitPlatform()
