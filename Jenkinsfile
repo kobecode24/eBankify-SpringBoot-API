@@ -16,11 +16,12 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Clean workspace before starting
+                    // Clean workspace and clone repository
                     deleteDir()
                     echo "Cloning Git repository..."
                     sh '''
                         git clone -b v04 https://github.com/kobecode24/eBankify-SpringBoot-API .
+                        echo "Repository cloned successfully."
                     '''
                 }
             }
