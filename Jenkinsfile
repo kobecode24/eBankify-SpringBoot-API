@@ -3,7 +3,6 @@ pipeline {
 
     tools {
         gradle 'Gradle'
-        jdk 'JDK 17'
     }
 
     environment {
@@ -14,34 +13,31 @@ pipeline {
     }
 
     stages {
-        stage('Code Checkout') {
+        stage('Environment Check') {
             steps {
-                checkout scm
+                sh '''
+                    echo "Java version:"
+                    java -version
+                    echo "Javac version:"
+                    javac -version
+                    pwd
+                    ls -la
+                '''
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'chmod +x ./gradlew'
-                        sh './gradlew clean build -x test --info'
-                    } else {
-                        bat 'gradlew clean build -x test --info'
-                    }
-                }
+                sh '''
+                    chmod +x ./gradlew
+                    ./gradlew clean build -x test --info --stacktrace
+                '''
             }
         }
 
         stage('Unit Tests') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh './gradlew test'
-                    } else {
-                        bat 'gradlew test'
-                    }
-                }
+                sh './gradlew test --info'
             }
             post {
                 always {
@@ -57,25 +53,13 @@ pipeline {
 
         stage('Code Quality Analysis') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh """
-                        ./gradlew sonar \
-                            -Dsonar.projectKey=banking-system \
-                            -Dsonar.projectName=BankingSystem \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    } else {
-                        bat """
-                        gradlew sonar ^
-                            -Dsonar.projectKey=banking-system ^
-                            -Dsonar.projectName=BankingSystem ^
-                            -Dsonar.host.url=http://localhost:9000 ^
-                            -Dsonar.login=%SONAR_TOKEN%
-                        """
-                    }
-                }
+                sh '''
+                    ./gradlew sonar \
+                        -Dsonar.projectKey=banking-system \
+                        -Dsonar.projectName=BankingSystem \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=${SONAR_TOKEN}
+                '''
             }
         }
 
