@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        JAVA_HOME = '/opt/jdk-17.0.12+7'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
         PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
         DOCKER_IMAGE = 'banking-system'
         DOCKER_TAG = "${BUILD_NUMBER}"
