@@ -15,15 +15,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                cleanWs()
-                checkout scm: [
-                    $class: 'GitSCM',
-                    branches: [[name: '*/v04']], // Changed to v04 branch
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/kobecode24/eBankify-SpringBoot-API',
-                        credentialsId: 'git-credentials' // if you need credentials
-                    ]]
-                ]
+                // Clean workspace
+                deleteDir()
+                // Initialize git
+                sh 'git init'
+                // Checkout specific branch
+                git branch: 'v04',
+                    url: 'https://github.com/kobecode24/eBankify-SpringBoot-API'
             }
         }
 
@@ -32,6 +30,10 @@ pipeline {
                 sh '''
                     echo "Git version:"
                     git --version
+                    echo "Git branch:"
+                    git branch
+                    echo "Git status:"
+                    git status
                     echo "Java version:"
                     java -version
                     echo "Javac version:"
@@ -43,6 +45,7 @@ pipeline {
             }
         }
 
+        // Rest of the stages remain the same
         stage('Build') {
             steps {
                 sh '''
