@@ -16,8 +16,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Clean workspace and clone repository
-                    deleteDir()
+                    deleteDir() // Clean workspace
                     echo "Cloning Git repository..."
                     sh '''
                         git clone -b v04 https://github.com/kobecode24/eBankify-SpringBoot-API .
@@ -104,7 +103,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").run('-p 8080:8080')
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").run('-p 8081:8080')
                 }
             }
         }
