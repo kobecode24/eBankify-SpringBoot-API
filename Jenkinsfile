@@ -7,11 +7,10 @@ pipeline {
     }
 
     environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
         DOCKER_IMAGE = 'banking-system'
         DOCKER_TAG = "${BUILD_NUMBER}"
         SONAR_TOKEN = credentials('sonar-token')
+        GRADLE_OPTS = '-Dorg.gradle.daemon=false'
     }
 
     stages {
@@ -25,9 +24,10 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh '/opt/gradle-8.10.2/bin/gradle clean build -x test'
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew clean build -x test --info'
                     } else {
-                        bat 'C:/gradle-8.10.2/bin/gradle clean build -x test'
+                        bat 'gradlew clean build -x test --info'
                     }
                 }
             }
@@ -37,9 +37,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh '/opt/gradle-8.10.2/bin/gradle test'
+                        sh './gradlew test'
                     } else {
-                        bat 'C:/gradle-8.10.2/bin/gradle test'
+                        bat 'gradlew test'
                     }
                 }
             }
@@ -60,19 +60,19 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh """
-                        /opt/gradle-8.10.2/bin/gradle sonar \
+                        ./gradlew sonar \
                             -Dsonar.projectKey=banking-system \
                             -Dsonar.projectName=BankingSystem \
-                            -Dsonar.host.url=http://host.docker.internal:9000 \
+                            -Dsonar.host.url=http://localhost:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     } else {
                         bat """
-                        C:/gradle-8.10.2/bin/gradle sonar \
-                            -Dsonar.projectKey=banking-system \
-                            -Dsonar.projectName=BankingSystem \
-                            -Dsonar.host.url=http://host.docker.internal:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}
+                        gradlew sonar ^
+                            -Dsonar.projectKey=banking-system ^
+                            -Dsonar.projectName=BankingSystem ^
+                            -Dsonar.host.url=http://localhost:9000 ^
+                            -Dsonar.login=%SONAR_TOKEN%
                         """
                     }
                 }
