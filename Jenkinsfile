@@ -15,13 +15,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clean workspace
-                deleteDir()
-                // Initialize git
-                sh 'git init'
-                // Checkout specific branch
-                git branch: 'v04',
-                    url: 'https://github.com/kobecode24/eBankify-SpringBoot-API'
+                script {
+                    // Clean workspace before starting
+                    deleteDir()
+                    echo "Cloning Git repository..."
+                    sh '''
+                        git clone -b v04 https://github.com/kobecode24/eBankify-SpringBoot-API .
+                    '''
+                }
             }
         }
 
@@ -30,22 +31,21 @@ pipeline {
                 sh '''
                     echo "Git version:"
                     git --version
-                    echo "Git branch:"
-                    git branch
+                    echo "Current Git branch:"
+                    git branch --show-current
                     echo "Git status:"
                     git status
                     echo "Java version:"
                     java -version
                     echo "Javac version:"
                     javac -version
-                    echo "Working directory:"
+                    echo "Working directory contents:"
                     pwd
                     ls -la
                 '''
             }
         }
 
-        // Rest of the stages remain the same
         stage('Build') {
             steps {
                 sh '''
