@@ -23,6 +23,7 @@ import org.system.bank.exception.AuthenticationException;
 import org.system.bank.mapper.UserMapper;
 import org.system.bank.repository.jpa.UserRepository;
 import org.system.bank.service.AuthService;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 
@@ -103,6 +104,20 @@ public class AuthController {
                     .body(new ErrorResponse("Token verification failed: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthenticationResponse> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+
+        if (refreshToken == null) {
+            return ResponseEntity.badRequest()
+                    .body(AuthenticationResponse.builder()
+                            .build());
+        }
+
+        return ResponseEntity.ok(authService.refreshToken(refreshToken));
+    }
+
     @Data
     @AllArgsConstructor
     private static class ErrorResponse {
