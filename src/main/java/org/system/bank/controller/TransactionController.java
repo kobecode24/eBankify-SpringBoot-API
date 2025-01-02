@@ -1,5 +1,5 @@
 package org.system.bank.controller;
-
+import org.springframework.data.domain.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,11 +15,11 @@ import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 import org.system.bank.service.TransactionService;
 import org.system.bank.otp.RequiresOtp;
-
+import org.springframework.data.domain.PageRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import org.springframework.data.domain.PageRequest;
 @RestController
 @RequestMapping("/transactions")
 @RequiredArgsConstructor
@@ -46,11 +46,20 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactionById(id));
     }
 
-    @Operation(summary = "Get all transactions", description = "Retrieves all transactions in the system")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public ResponseEntity<Page<TransactionResponse>> getAllTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) TransactionStatus status) {
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<TransactionResponse> transactions = transactionService.getAllTransactions(pageable);
+        return ResponseEntity.ok(transactions);
     }
 
     @Operation(summary = "Get account transactions", description = "Retrieves all transactions for a specific account")

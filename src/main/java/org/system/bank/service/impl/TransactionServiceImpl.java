@@ -1,6 +1,7 @@
 package org.system.bank.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.system.bank.dto.request.TransactionRequest;
@@ -15,8 +16,9 @@ import org.system.bank.mapper.TransactionMapper;
 import org.system.bank.repository.jpa.TransactionRepository;
 import org.system.bank.service.AccountService;
 import org.system.bank.service.TransactionService;
-
+import org.springframework.data.domain.Pageable;
 import jakarta.persistence.EntityNotFoundException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -51,6 +53,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse getTransactionById(Long id) {
         Transaction transaction = findTransactionById(id);
         return transactionMapper.toResponse(transaction);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TransactionResponse> getAllTransactions(Pageable pageable) {
+        Page<Transaction> transactionsPage = transactionRepository.findAll(pageable);
+        return transactionsPage.map(transactionMapper::toResponse);
     }
 
     @Override
