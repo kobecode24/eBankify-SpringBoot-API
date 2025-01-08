@@ -9,10 +9,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.system.bank.dto.request.UserRegistrationRequest;
 import org.system.bank.dto.response.UserResponse;
+import org.system.bank.entity.DashboardStats;
+import org.system.bank.enums.AccountStatus;
 import org.system.bank.enums.Role;
+import org.system.bank.service.TransactionService;
 import org.system.bank.service.UserService;
 
 import jakarta.validation.Valid;
+
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -24,6 +29,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final TransactionService transactionService;
 
     @Operation(summary = "Create new user", description = "Creates a new user in the system. Restricted to admin users.")
     @ApiResponse(responseCode = "200", description = "User created successfully")
@@ -103,5 +109,22 @@ public class UserController {
     @GetMapping("/{id}/loan-eligibility")
     public ResponseEntity<Boolean> checkLoanEligibility(@PathVariable Long id) {
         return ResponseEntity.ok(userService.isEligibleForLoan(id));
+    }
+
+    @GetMapping("/admin/stats")
+    public ResponseEntity<DashboardStats> getAdminStats() {
+        int totalUsers = userService.getAllUsers().size();
+        int activeUsers = (int) userService.getAllUsers().stream()
+                .filter(user -> user.getAccounts().stream()
+                        .anyMatch(account -> account.getStatus() == AccountStatus.ACTIVE))
+                .count();
+        int totalTransactions = transactionService.getAllTransactions().size();
+
+        return ResponseEntity.ok(DashboardStats.builder()
+                .totalUsers(totalUsers)
+                .activeUsers(activeUsers)
+                .totalTransactions(totalTransactions)
+                .lastUpdated(new Date())
+                .build());
     }
 }

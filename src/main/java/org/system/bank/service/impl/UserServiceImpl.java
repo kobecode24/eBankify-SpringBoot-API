@@ -1,6 +1,7 @@
 package org.system.bank.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.system.bank.dto.request.UserRegistrationRequest;
@@ -22,11 +23,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final LoanEligibilityService loanEligibilityService;
+    private final PasswordEncoder passwordEncoder; // Use Spring's PasswordEncoder instead of BCrypt directly
 
     @Override
     public UserResponse createUser(UserRegistrationRequest request) {
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
+        savedUser.setPassword(passwordEncoder.encode(request.getPassword()));
         return userMapper.toResponse(savedUser);
     }
 
@@ -50,6 +53,7 @@ public class UserServiceImpl implements UserService {
         userToUpdate.setUserId(id);
 
         User updatedUser = userRepository.save(userToUpdate);
+        updatedUser.setPassword(passwordEncoder.encode(request.getPassword()));
         return userMapper.toResponse(updatedUser);
     }
 
