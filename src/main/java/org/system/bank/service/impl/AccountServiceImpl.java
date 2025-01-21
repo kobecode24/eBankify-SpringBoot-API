@@ -14,6 +14,8 @@ import org.system.bank.service.AccountService;
 import org.system.bank.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -130,5 +132,17 @@ public class AccountServiceImpl implements AccountService {
         if (initialDeposit == null || initialDeposit < 0) {
             throw new IllegalArgumentException("Initial deposit must be positive");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AccountResponse> searchAccounts(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Search for accounts where the user's name contains the query string
+        List<Account> accounts = accountRepository.findByUser_NameContainingIgnoreCase(query);
+        return accountMapper.toResponseList(accounts);
     }
 }

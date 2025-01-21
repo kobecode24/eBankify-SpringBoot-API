@@ -1,13 +1,17 @@
 package org.system.bank.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.system.bank.dto.request.TransactionRequest;
+import org.system.bank.dto.response.CartTransactionDTO;
 import org.system.bank.dto.response.TransactionResponse;
 import org.system.bank.entity.Account;
 import org.system.bank.entity.Transaction;
+import org.system.bank.entity.User;
 import org.system.bank.enums.AccountStatus;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
@@ -16,11 +20,10 @@ import org.system.bank.mapper.TransactionMapper;
 import org.system.bank.repository.jpa.TransactionRepository;
 import org.system.bank.service.AccountService;
 import org.system.bank.service.TransactionService;
-import org.springframework.data.domain.Pageable;
-import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -184,4 +187,28 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> getPendingTransactionsByUser(User user) {
+        List<Transaction> pendingTransactions = transactionRepository
+                .findBySourceAccount_UserAndStatus(user, TransactionStatus.PENDING);
+        return transactionMapper.toResponseList(pendingTransactions);
+    }
+
+
+    public List<CartTransactionDTO> transformToPendingTransactions(List<TransactionResponse> transactions) {
+        return transactions.stream()
+                .map(tx -> CartTransactionDTO.builder()
+                        .id(tx.getTransactionId().toString())
+                        .amount(tx.getAmount())
+                        .type(tx.getType())
+                        .sourceAccountId(tx.getSourceAccountId())
+                        .destinationAccountId(tx.getDestinationAccountId())
+                        .createdAt(tx.getCreatedAt())
+                        .updatedAt(LocalDateTime.now())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

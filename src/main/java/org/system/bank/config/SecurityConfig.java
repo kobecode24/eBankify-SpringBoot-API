@@ -38,7 +38,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final OtpValidationFilter otpValidationFilter;
+    //private final OtpValidationFilter otpValidationFilter;
 
     @Bean
     public JwtService jwtService() {
@@ -94,7 +94,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // OTP validation filter after JWT authentication
-                .addFilterAfter(otpValidationFilter, JwtAuthenticationFilter.class)
+                //.addFilterAfter(otpValidationFilter, JwtAuthenticationFilter.class)
                 .httpBasic(basic -> basic
                         .authenticationEntryPoint(basicAuthenticationEntryPoint()))
                 .exceptionHandling(exception -> exception

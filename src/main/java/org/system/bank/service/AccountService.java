@@ -21,4 +21,6 @@ public interface AccountService {
     List<AccountResponse> getAccountsWithMinBalance(Double minBalance);
     Account getAccountEntity(Long accountId);
     Account saveAccount(Account account);
+    List<AccountResponse> searchAccounts(String query);
+
 }

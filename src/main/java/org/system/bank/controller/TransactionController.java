@@ -7,8 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.system.bank.config.SecurityUser;
 import org.system.bank.dto.request.TransactionRequest;
+import org.system.bank.dto.response.CartTransactionDTO;
 import org.system.bank.dto.response.TransactionResponse;
 import org.system.bank.enums.OtpPurpose;
 import org.system.bank.enums.TransactionStatus;
@@ -34,7 +38,7 @@ public class TransactionController {
     @ApiResponse(responseCode = "403", description = "Insufficient permissions or funds")
     @PreAuthorize("@transactionSecurity.canCreateTransaction(#request.sourceAccountId)")
     @PostMapping
-    @RequiresOtp(purpose = OtpPurpose.HIGH_VALUE_TRANSACTION)
+    //@RequiresOtp(purpose = OtpPurpose.HIGH_VALUE_TRANSACTION)
     public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.createTransaction(request));
     }
@@ -101,5 +105,15 @@ public class TransactionController {
             @RequestParam Long accountId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
         return ResponseEntity.ok(transactionService.calculateDailyTransactions(accountId, date));
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<CartTransactionDTO>> getPendingTransactions() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        SecurityUser user = (SecurityUser) authentication.getPrincipal();
+        return ResponseEntity.ok(transactionService.transformToPendingTransactions(
+                transactionService.getPendingTransactionsByUser(user.getUser())
+        ));
     }
 }
