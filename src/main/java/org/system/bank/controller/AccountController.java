@@ -102,4 +102,11 @@ public class AccountController {
     public ResponseEntity<List<AccountResponse>> getAccountsWithMinBalance(@RequestParam Double minBalance) {
         return ResponseEntity.ok(accountService.getAccountsWithMinBalance(minBalance));
     }
+
+    @GetMapping("/search")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<AccountResponse>> searchAccounts(
+            @RequestParam String query) {
+        return ResponseEntity.ok(accountService.searchAccounts(query));
+    }
 }

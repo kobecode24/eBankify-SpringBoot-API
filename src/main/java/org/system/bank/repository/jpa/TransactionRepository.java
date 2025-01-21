@@ -10,6 +10,7 @@ import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
 import org.system.bank.entity.Account;
 import org.system.bank.entity.Transaction;
+import org.system.bank.entity.User;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 
@@ -59,4 +60,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query(value = "SELECT t FROM Transaction t",
             countQuery = "SELECT COUNT(t) FROM Transaction t")
     Page<Transaction> findAll(Pageable pageable);
+
+    List<Transaction> findBySourceAccount_UserAndStatus(User user, TransactionStatus status);
 }

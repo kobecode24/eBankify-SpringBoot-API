@@ -26,4 +26,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("SELECT SUM(a.balance) FROM Account a WHERE a.user = :user AND a.status = 'ACTIVE'")
     Double getTotalBalance(@Param("user") User user);
+
+    List<Account> findByUser_NameContainingIgnoreCase(String query);
+
 }

@@ -2,8 +2,10 @@ package org.system.bank.service;
 
 import org.springframework.data.domain.Pageable;
 import org.system.bank.dto.request.TransactionRequest;
+import org.system.bank.dto.response.CartTransactionDTO;
 import org.system.bank.dto.response.TransactionResponse;
 import org.system.bank.entity.Transaction;
+import org.system.bank.entity.User;
 import org.system.bank.enums.TransactionStatus;
 import org.system.bank.enums.TransactionType;
 
@@ -26,4 +28,7 @@ public interface TransactionService {
     boolean isTransactionValid(TransactionRequest request);
     List<TransactionResponse> getAccountTransactionHistory(Long accountId, LocalDateTime startDate, LocalDateTime endDate);
     Transaction getTransactionEntity(Long transactionId);
+    List<TransactionResponse> getPendingTransactionsByUser(User user);
+
+    List<CartTransactionDTO> transformToPendingTransactions(List<TransactionResponse> pendingTransactionsByUser);
 }
